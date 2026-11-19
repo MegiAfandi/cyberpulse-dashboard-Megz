@@ -1,5 +1,5 @@
 {
-  "name": "cyberpulse-dashboard-megz",
+  "name": "cyberpulse",
   "main": "worker.mjs",
   "compatibility_date": "2026-11-19",
   "workers_dev": true
