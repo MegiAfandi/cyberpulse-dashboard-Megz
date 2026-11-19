@@ -44,3 +44,9 @@ test('invalid parameters do not reach upstream',async()=>{
  const worker=makeWorker({fetcher:()=>{throw Error('Should not be called');},edgeCache:()=>null});
  assert.equal((await worker.fetch(request('/api/source/nvd?redirect=http://internal'))).status,400);
 });
+test('count changes can bypass stale edge cache without forwarding refresh metadata',async()=>{
+ let calls=0,options;
+ const worker=makeWorker({fetcher:async(_url,init)=>{calls++;options=init;return new Response('fresh');},edgeCache:()=>({match:async()=>new Response('old'),put:async()=>{}})});
+ const req=new Request('https://cyberpulse.workers.dev/api/source/nvd',{headers:{'X-CyberPulse-Refresh':'1'}});
+ const result=await worker.fetch(req);assert.equal(await result.text(),'fresh');assert.equal(calls,1);assert.equal(options.headers['X-CyberPulse-Refresh'],undefined);
+});
